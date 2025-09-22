@@ -1,0 +1,30 @@
+# Configuration file for Kontext Detective
+
+# FAL API Configuration
+FAL_API_KEY = "your_fal_api_key_here"
+FAL_MODEL_ID = "black-forest-labs/flux-1-kontext-dev"
+
+# Detection Settings
+DETECTION_THRESHOLD = 0.7
+MAX_IMAGE_SIZE = 1024
+EDIT_PROMPTS = [
+    "enhance image quality",
+    "make colors more vibrant",
+    "improve lighting",
+    "sharpen details",
+    "reduce noise"
+]
+
+# Analysis Parameters
+ARTIFACT_SENSITIVITY = 0.1
+COMPARISON_METRICS = ["mse", "ssim", "psnr"]
+ENSEMBLE_WEIGHTS = {
+    "reconstruction": 0.4,
+    "sensitivity": 0.3,
+    "consistency": 0.3
+}
+
+# UI Settings
+STREAMLIT_THEME = "light"
+MAX_UPLOAD_SIZE_MB = 10
+SUPPORTED_FORMATS = ["jpg", "jpeg", "png", "webp"]

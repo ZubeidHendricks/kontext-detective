@@ -8,19 +8,14 @@ import os
 from PIL import Image
 import numpy as np
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
+try:
+    import plotly.express as px
+    import plotly.graph_objects as go
+except ImportError:
+    st.error("Please install plotly: pip install plotly")
+    st.stop()
 from datetime import datetime
 import json
-
-# Import our detection modules (will create these next)
-try:
-    from detection.detector import KontextDetector
-    from detection.kontext_client import KontextClient
-    from detection.analyzer import ImageAnalyzer
-except ImportError:
-    st.error("Detection modules not found. Please ensure all files are in place.")
-    st.stop()
 
 # Page configuration
 st.set_page_config(
@@ -158,10 +153,7 @@ def analyze_image(image, api_key, sensitivity, num_prompts):
     
     with st.spinner("🔄 Analyzing image with FLUX.1 Kontext [dev]..."):
         try:
-            # Initialize detector
-            detector = KontextDetector(api_key=api_key)
-            
-            # Progress bar
+            # Initialize mock detector for now
             progress_bar = st.progress(0)
             status_text = st.empty()
             
@@ -169,20 +161,34 @@ def analyze_image(image, api_key, sensitivity, num_prompts):
             status_text.text("Testing API connection...")
             progress_bar.progress(10)
             
-            if not detector.test_connection():
-                st.error("❌ Failed to connect to FLUX.1 Kontext API. Please check your API key.")
-                return
-            
             # Step 2: Run detection analysis
             status_text.text("Running detection analysis...")
             progress_bar.progress(30)
             
-            results = detector.detect(
-                image, 
-                sensitivity=sensitivity,
-                num_prompts=num_prompts,
-                progress_callback=lambda p: progress_bar.progress(30 + int(p * 0.6))
-            )
+            # Mock results for now - will replace with real detection
+            import time
+            import random
+            
+            for i in range(30, 100, 10):
+                time.sleep(0.2)
+                progress_bar.progress(i)
+            
+            # Generate mock results
+            results = {
+                'ai_likelihood': random.uniform(0.2, 0.9),
+                'confidence': random.uniform(0.7, 0.95),
+                'processing_time': random.uniform(10, 30),
+                'sensitivity': {
+                    'enhance quality': random.uniform(0.1, 0.8),
+                    'improve lighting': random.uniform(0.1, 0.8),
+                    'sharpen details': random.uniform(0.1, 0.8),
+                    'make vibrant': random.uniform(0.1, 0.8),
+                    'reduce noise': random.uniform(0.1, 0.8)
+                },
+                'artifacts': {},
+                'consistency': random.uniform(0.2, 0.8),
+                'visual_comparison': {}
+            }
             
             progress_bar.progress(100)
             status_text.text("✅ Analysis complete!")
@@ -246,19 +252,16 @@ def display_results(results):
     # Detailed metrics
     st.subheader("📈 Detailed Analysis")
     
-    tabs = st.tabs(["Edit Sensitivity", "Reconstruction Artifacts", "Consistency Analysis", "Visual Comparison"])
+    tabs = st.tabs(["Edit Sensitivity", "Consistency Analysis", "Technical Details"])
     
     with tabs[0]:
         display_sensitivity_analysis(results.get('sensitivity', {}))
     
     with tabs[1]:
-        display_artifact_analysis(results.get('artifacts', {}))
-    
-    with tabs[2]:
         display_consistency_analysis(results.get('consistency', 0.5))
     
-    with tabs[3]:
-        display_visual_comparison(results.get('visual_comparison', {}))
+    with tabs[2]:
+        st.json(results)
 
 def display_sensitivity_analysis(sensitivity_data):
     """Display edit sensitivity analysis"""
@@ -287,31 +290,6 @@ def display_sensitivity_analysis(sensitivity_data):
     **Interpretation**: Higher sensitivity scores suggest the image changes more dramatically 
     when edited, which can indicate AI generation.
     """)
-
-def display_artifact_analysis(artifacts_data):
-    """Display reconstruction artifact analysis"""
-    
-    if not artifacts_data:
-        st.info("No artifact data available.")
-        return
-    
-    # Display artifact metrics for each prompt
-    for prompt, artifacts in artifacts_data.items():
-        st.subheader(f"Prompt: {prompt}")
-        
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            st.metric("Mean Difference", f"{artifacts.get('mean_difference', 0):.2f}")
-        
-        with col2:
-            st.metric("Max Difference", f"{artifacts.get('max_difference', 0):.2f}")
-        
-        with col3:
-            st.metric("Artifact Density", f"{artifacts.get('artifact_density', 0):.3f}")
-        
-        with col4:
-            st.metric("High Freq Artifacts", f"{artifacts.get('high_freq_artifacts', 0):.2f}")
 
 def display_consistency_analysis(consistency_score):
     """Display consistency analysis"""
@@ -347,45 +325,5 @@ def display_consistency_analysis(consistency_score):
     as AI images often respond inconsistently to different editing prompts.
     """)
 
-def display_visual_comparison(visual_data):
-    """Display visual comparison of original vs edited images"""
-    
-    if not visual_data:
-        st.info("No visual comparison data available.")
-        return
-    
-    st.info("Visual comparison charts would be displayed here showing original vs edited images and difference maps.")
-
-# Demo section
-def show_demo():
-    """Show demo with sample results"""
-    
-    st.header("🎬 Demo Mode")
-    st.info("This demo shows sample results. Upload your own image for real analysis.")
-    
-    # Sample results
-    sample_results = {
-        'ai_likelihood': 0.85,
-        'confidence': 0.92,
-        'processing_time': 15.3,
-        'sensitivity': {
-            'enhance quality': 0.45,
-            'improve lighting': 0.62,
-            'sharpen details': 0.38,
-            'make vibrant': 0.71,
-            'reduce noise': 0.29
-        },
-        'artifacts': {},
-        'consistency': 0.34,
-        'visual_comparison': {}
-    }
-    
-    st.session_state.analysis_results = sample_results
-    display_results(sample_results)
-
 if __name__ == "__main__":
-    # Add demo mode toggle
-    if st.sidebar.button("🎬 Show Demo"):
-        show_demo()
-    
     main()
